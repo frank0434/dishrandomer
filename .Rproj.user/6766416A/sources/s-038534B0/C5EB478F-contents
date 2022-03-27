@@ -1,0 +1,66 @@
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+#
+
+library(shiny)
+library(shinyWidgets)
+library(data.table)
+dt <- fread("dishes.csv")
+dt[, id := 1:.N]
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+
+    # Application title
+    titlePanel("What to have next week."),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            pickerInput(inputId = "PickDays",
+                        label = "Select days you want a fixed menu",
+                        choices = c("Monday", "Tuesday", "Wednesday", 
+                                    "Thursday", "Friday", "Saturday",
+                                    "Sunday"),
+                        multiple = TRUE,
+                        options = pickerOptions(
+                            actionsBox = TRUE,
+                            title = "Please select all the days you want."
+                        )),
+            actionBttn( inputId = "action",
+                        label = "gradient", 
+                        style = "gradient",
+                        color = "success",
+                        icon = icon("thumbs-up"))
+        ),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+           # plotOutput("distPlot")
+            dataTableOutput("disTable")
+        )
+    )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+
+    inputdays <- eventReactive(input$action,{
+        days <- input$PickDays
+        days
+    })
+    output$disTable <- renderDataTable({
+        no.ofdays <- length(inputdays())
+        output <- dt[sample(id,size = no.ofdays, replace = TRUE)]
+        output$Day <- inputdays()
+        output[,.(Day, breaky, lunch, dinner_main, dinner_side, dinner_soup)]
+    })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
