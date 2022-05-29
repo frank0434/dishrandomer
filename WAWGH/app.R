@@ -33,9 +33,9 @@ ui <- fluidPage(
                             title = "Please select all the days you want."
                         )),
             actionBttn( inputId = "action",
-                        label = "gradient", 
+                        label = "Generate Menu!!!", 
                         style = "gradient",
-                        color = "success",
+                        color = "warning",
                         icon = icon("thumbs-up"))
         ),
 
