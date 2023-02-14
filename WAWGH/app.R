@@ -95,8 +95,8 @@ server <- function(input, output) {
       },
       content = function(file) {
         pdf("Breakfast_and_Lunch_Plan.pdf", height = 11, width = 8.5)
-        print(renderTable({generate_meal()}))
-        print(renderTable({generate_shopping_list()}))
+        # print(renderTable({generate_meal()}))
+        generate_shopping_list()
         dev.off()
         file.rename("Breakfast_and_Lunch_Plan.pdf", file)
       }
