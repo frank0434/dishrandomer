@@ -94,11 +94,29 @@ server <- function(input, output) {
         paste("Breakfast_and_Lunch_Plan_", Sys.Date(), ".pdf", sep = "")
       },
       content = function(file) {
-        pdf("Breakfast_and_Lunch_Plan.pdf", height = 11, width = 8.5)
-        # print(renderTable({generate_meal()}))
-        generate_shopping_list()
-        dev.off()
-        file.rename("Breakfast_and_Lunch_Plan.pdf", file)
+        # Copy the report file to a temporary directory before processing it, in
+        # case we don't have write permissions to the current working dir (which
+        # can happen when deployed).
+        tempReport <- file.path(tempdir(), 'report.Rmd')
+        # Copy the report file to a temporary directory before processing it, in
+        # case we don't have write permissions to the current working dir (which
+        # can happen when deployed).
+        # owd <- setwd(tempdir())
+        # on.exit(setwd(owd))
+        file.copy('report.Rmd',tempReport, overwrite = TRUE)
+    
+        
+        # Set up parameters to pass to Rmd document
+        params <- list(menu = generate_meal(),
+                       shopping_list = generate_shopping_list())
+        
+        # Knit the document, passing in the `params` list, and eval it in a
+        # child of the global environment (this isolates the code in the document
+        # from the code in this app).
+        out <- rmarkdown::render(tempReport, 
+                          params = params,
+                          envir = new.env(parent = globalenv()) )
+        file.copy(out, file)
       }
     )
 }
